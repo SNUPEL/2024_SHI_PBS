@@ -6,8 +6,9 @@ from benchmark.heuristics import *
 
 
 class PanelBlockShop:
-    def __init__(self, num_of_process=6, num_of_blocks=50, distribution="lognormal"):
-        self.num_of_process = num_of_process
+    def __init__(self, num_process=6, num_p1=3, num_of_blocks=50, distribution="lognormal"):
+        self.num_p = num_process
+        self.num_p_list = [num_p1, num_process - num_p1]
         self.num_of_blocks = num_of_blocks
         self.distribution = distribution
 
@@ -15,14 +16,14 @@ class PanelBlockShop:
             self.shape = [0.543, 0.525, 0.196, 0.451, 0.581, 0.432]
             self.scale = [2.18, 2.18, 0.518, 2.06, 1.79, 2.10]
         elif distribution == "uniform":
-            self.loc = [0 for _ in range(num_of_process)]
-            self.scale = [100 for _ in range(num_of_process)]
+            self.loc = [0 for _ in range(num_process)]
+            self.scale = [100 for _ in range(num_process)]
 
     def generate_data(self, batch_size=1, use_label=False):
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        process_time = np.zeros((batch_size * self.num_of_blocks, self.num_of_process))
+        process_time = np.zeros((batch_size * self.num_of_blocks, self.num_p))
 
-        for i in range(self.num_of_process):
+        for i in range(self.num_p):
             if self.distribution == "lognormal":
                 r = np.round(stats.lognorm.rvs(self.shape[i], loc=0, scale=self.scale[i],
                                                size=batch_size * self.num_of_blocks), 1)
@@ -30,7 +31,7 @@ class PanelBlockShop:
                 r = np.round(stats.uniform.rvs(loc=self.loc[i], scale=self.scale[i],
                                                size=batch_size * self.num_of_blocks), 1)
             process_time[:, i] = r
-        process_time = process_time.reshape((batch_size, self.num_of_blocks, self.num_of_process))
+        process_time = process_time.reshape((batch_size, self.num_of_blocks, self.num_p))
 
         if use_label:
             label = np.zeros((batch_size, self.num_of_blocks))
@@ -59,34 +60,40 @@ class PanelBlockShop:
 
         num_of_blocks = blocks.shape[0]
         num_of_process = blocks.shape[1]
-        num_p1 = 5
-        num_p2 = num_of_process - num_p1
-        temp = np.zeros((num_of_blocks + 1, num_of_process + 1))
 
-        for i in range(1, num_of_blocks + 1):
-            for j in range(1, num_of_process + 1):
-                line = None
-                if j < num_p1 + 1:  # 1, 2, 3, ... , num_p1
-                    ESD = max(temp[i - 1, j], temp[i, j - 1])  # Earliest Start Date
-                    temp[i, j] = ESD + blocks_numpy[sequence_numpy[i - 1], j - 1]
-                else:  # j = num_p1+1, num_p1+2, ... , num_of_process
-                    # minimum. earliest start date of line1 and line2
-                    if temp[i - 1, j] > temp[i - 1, j + num_p2]:
-                        print('This block goes to line B.')
-                        line = 'B'
-                        ESD = max(temp[i, j - 1], temp[i - 1, j + num_p2])
-                    elif temp[i - 1, j] == temp[i - 1, j + num_p2]:
-                        print('Line 1 and 2 have the same ESD. ') # random하게 뽑을 수도 있지만, 일단은 Line A로 보냄
-                        print('This block goes to line A.')
-                        line = 'A'
-                        ESD = max(temp[i, j - 1], [i - 1, j])
-                    else:
-                        print('This block goes to line A.')
-                        line = 'A'
-                        ESD = max(temp[i, j - 1], [i - 1, j])
-                        # 이번에 선택되지 않은 line에 대해서, 바로 위 값을 복사해 줌
+        CT_table = dict()
+        CT_table['1'] = np.zeros((num_of_blocks + 1, self.num_p_list[0] + 1))
+        CT_table['2A'] = np.zeros((num_of_blocks + 1, self.num_p_list[1]))
+        CT_table['2B'] = np.zeros((num_of_blocks + 1, self.num_p_list[1]))
 
+        for i in range(num_of_blocks):
+            for j in range(self.num_p):
+                pt = blocks_numpy[sequence_numpy[i], j]
 
+                # Line 1
+                if j in range(self.num_p_list[0]):
+                    # process의 관점에서 선행 job의 끝나는 시간
+                    esd_1 = CT_table['1'][i, j + 1]
+
+                    # job의 관점에서 선행 process의 끝나는 시간
+                    esd_2 = CT_table['1'][i + 1, j]
+                    ESD = max(esd_1, esd_2)
+
+                    # completion time
+                    ct = ESD + pt
+                    CT_table['1'][i + 1, j + 1] = ct
+
+                # Starting Line 2 ...
+                # Determine in which line to put
+                elif j == self.num_p_list[0]:
+                    pass
+
+                # Line 2
+                elif j in range(self.num_p_list[0] + 1, self.num_p):
+                    pass
+
+                else:
+                    print('Invalid Input Size!')
 
         C_max = temp[num_of_blocks, num_of_process]
 
