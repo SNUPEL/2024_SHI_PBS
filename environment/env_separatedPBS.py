@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import scipy.stats as stats
 
-from benchmark.heuristics import *
+# from benchmark.heuristics import *
 
 
 class PanelBlockShop:
@@ -33,14 +33,14 @@ class PanelBlockShop:
             process_time[:, i] = r
         process_time = process_time.reshape((batch_size, self.num_of_blocks, self.num_p))
 
-        if use_label:
-            label = np.zeros((batch_size, self.num_of_blocks))
-            for i, pt in enumerate(process_time):
-                sequence_neh, makespan_neh = NEH_sequence(self, pt)
-                label[i] = sequence_neh
-            return torch.FloatTensor(process_time).to(device), torch.FloatTensor(label).to(device)
-        else:
-            return torch.FloatTensor(process_time).to(device)
+        # if use_label:
+        #     label = np.zeros((batch_size, self.num_of_blocks))
+        #     for i, pt in enumerate(process_time):
+        #         sequence_neh, makespan_neh = NEH_sequence(self, pt)
+        #         label[i] = sequence_neh
+        #     return torch.FloatTensor(process_time).to(device), torch.FloatTensor(label).to(device)
+        # else:
+        #     return torch.FloatTensor(process_time).to(device)
 
     def stack_makespan(self, blocks, sequences):
         list = [self.calculate_makespan(blocks[i], sequences[i]) for i in range(blocks.shape[0])]
@@ -65,6 +65,7 @@ class PanelBlockShop:
         CT_table['1'] = np.zeros((num_of_blocks + 1, self.num_p_list[0] + 1))
         CT_table['2A'] = np.zeros((num_of_blocks + 1, self.num_p_list[1]))
         CT_table['2B'] = np.zeros((num_of_blocks + 1, self.num_p_list[1]))
+        line = None
 
         for i in range(num_of_blocks):
             for j in range(self.num_p):
@@ -86,16 +87,47 @@ class PanelBlockShop:
                 # Starting Line 2 ...
                 # Determine in which line to put
                 elif j == self.num_p_list[0]:
-                    pass
+
+                    esd_1 = CT_table['1'][i + 1, j]
+                    # job의 관점에서 선행 process가 끝나는 시간
+
+                    esd_A = CT_table['2A'][i, 0]
+                    esd_B = CT_table['2B'][i, 0]
+
+                    if esd_A > esd_B:
+                        line = '2B'
+                        unused = '2A'
+                        print('Block {0} goes to line B.'.format(i))
+                        esd_2 = esd_B
+                    elif esd_A == esd_B:
+                        line = '2A'
+                        unused = '2B'
+                        print('Block {0} goes to line A.'.format(i))
+                        esd_2 = esd_A
+                    else:
+                        line = '2A'
+                        unused = '2B'
+                        print('Block {0} goes to line A.'.format(i))
+                        esd_2 = esd_A
+
+                    ESD = max(esd_1, esd_2)
+                    ct = ESD + pt
+                    CT_table[line][i+1,0] = ct
+                    # fill the unused line information
+                    CT_table[unused][i+1,:] = CT_table[unused][i,:]
 
                 # Line 2
                 elif j in range(self.num_p_list[0] + 1, self.num_p):
-                    pass
-
+                    esd_1 = CT_table[line][i,j-self.num_p_list[0]]
+                    esd_2 = CT_table[line][i+1,j-self.num_p_list[0]-1]
+                    ESD = max(esd_1, esd_2)
+                    ct = ESD + pt
+                    CT_table[line][i + 1, j - self.num_p_list[0]] = ct
                 else:
                     print('Invalid Input Size!')
 
-        C_max = temp[num_of_blocks, num_of_process]
+
+        C_max = max(np.max(CT_table['2A']),np.max(CT_table['2B']))
 
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
