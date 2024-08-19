@@ -1,5 +1,4 @@
 from env_separatedPBS import PanelBlockShop
-# 테스트 코드
 import numpy as np
 import pandas as pd
 import torch
@@ -22,19 +21,21 @@ try:
     
     # 생성된 데이터의 일부를 출력해보기
     print("첫 번째 배치의 첫 번째 블록 데이터:")
-    print(generated_data[0, 0, :])
+    print(generated_data[0, 0, :])  # 첫 번째 배치의 첫 번째 블록에 대한 데이터 출력
     
     # 생성된 데이터를 pandas DataFrame으로 변환하여 저장
     df = pd.DataFrame(generated_data.reshape(-1, num_process), 
                       columns=[f'Process_{i+1}' for i in range(num_process)])
     
+    # 각 블록의 타입 정보 추가 (이 부분은 실제 타입 정보를 사용하도록 수정해야 할 수 있습니다)
     # 각 블록의 타입 정보 추가
     df['타입'] = pbs.selected_types
+
     
-    # # 생성된 데이터를 엑셀 파일로 저장
-    # output_file = "generated_data_test.xlsx"
-    # df.to_excel(output_file, index=False)
-    # print(f"생성된 데이터가 '{output_file}' 파일에 저장되었습니다.")
+    # 생성된 데이터를 엑셀 파일로 저장
+    output_file = "generated_data_test.xlsx"
+    df.to_excel(output_file, index=False)
+    print(f"생성된 데이터가 '{output_file}' 파일에 저장되었습니다.")
 
     print(f"Total blocks: {batch_size * num_of_blocks}")
     print(f"Selected types length: {len(pbs.selected_types)}")

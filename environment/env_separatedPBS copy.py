@@ -7,24 +7,21 @@ from panelblock_PBS import DataGenerator
 
 
 class PanelBlockShop:
-    def __init__(self, num_process=10, num_p1=3, num_of_blocks=50):
+    def __init__(self, num_process=10, num_p1=3, num_of_blocks=1060):
         self.num_p = num_process
         self.num_p_list = [num_p1, num_process - num_p1]
         self.num_of_blocks = num_of_blocks
-        self.data_generator = DataGenerator(data_file=None, num_of_blocks=num_of_blocks)
+        self.data_generator = DataGenerator(data_file=None, num_of_blocks=num_of_blocks, size=1)
         self.selected_types = None
         self.all_data = None
 
-    def generate_data(self, batch_size=32):
-        total_blocks = batch_size * self.num_of_blocks
-        
-        print(f"Generating {total_blocks} samples...")
-        self.data_generator.num_of_blocks = total_blocks  # DataGenerator의 num_of_blocks를 업데이트
+    def generate_data(self):
+        print(f"Generating {self.num_of_blocks} samples...")
         self.all_data, self.selected_types = self.data_generator.generate_all_types(self.data_generator.type_counts)
 
-        process_time = np.zeros((total_blocks, self.num_p))
+        process_time = np.zeros((self.num_of_blocks, self.num_p))
         
-        for j in range(total_blocks):
+        for j in range(self.num_of_blocks):
             type_name = self.selected_types[j]
             
             if type_name not in self.all_data or '0' not in self.all_data[type_name]:
@@ -40,7 +37,7 @@ class PanelBlockShop:
                 else:
                     print(f"Warning: Process index {i} out of range for block {j} of type {type_name}.")
         
-        return process_time.reshape(batch_size, self.num_of_blocks, self.num_p)
+        return process_time
 
     def stack_makespan(self, blocks, sequences):
         list = [self.calculate_makespan(blocks[i], sequences[i]) for i in range(blocks.shape[0])]

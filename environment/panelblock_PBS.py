@@ -4,113 +4,199 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 from scipy.stats import norm
-
-type_params = {
-    'TP_1': {
-        'shape': [0.1052, 0.2015, 0.0534, 0.0534, 0.3823, 0.1911, 0.4037, 0.2665, 0.0115],
-        'scale': [8.62, 17.30, 25.96, 25.96, 26.21, 22.89, 41.24, 44.31, 45.06]
-    },
-    'TP_10': {
-        'shape': [0.3009, 0.3808, 0.4490, 0.4490, 0.2812, 0.1816, 0.3431, 0.3737, 0.2464],
-        'scale': [12.26, 25.66, 37.27, 37.27, 34.42, 28.76, 52.56, 47.27, 37.03]
-    },
-    'TP_11': {
-        'shape': [0.2005, 0.3489, 0.3052, 0.3052, 0.3085, 0.2105, 0.2257, 0.3383, 0.1660],
-        'scale': [10.70, 21.91, 30.93, 30.93, 31.77, 26.38, 41.18, 39.72, 37.51]
-    },
-    'TP_12': {
-        'shape': [0.1289, 0.1738, 0.2958, 0.2958, 0.1231, 0.0617, 0.0942, 0.0048, 0.0071],
-        'scale': [17.26, 34.46, 54.12, 54.12, 38.70, 30.94, 74.07, 51.40, 34.70]
-    },
-    'TP_13': {
-        'shape': [0.0, 0.0, 0.1003, 0.1003, 0.0, 0.0, 0.0405, 0.0, 0.0],
-        'scale': [13.0, 25.0, 49.75, 49.75, 65.0, 30.0, 43.21, 33.7, 39.7]
-    },
-    'TP_14': {
-        'shape': [0.1551, 0.1582, 0.0325, 0.0325, 0.00000001, 0.0510, 0.00000001, 0.00000001, 0.00000001],
-        'scale': [12.85, 27.75, 47.10, 47.10, 45.0, 41.20, 41.5, 35.6, 42.9]
-    },
-    'TP_15': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [8.0, 15.0, 15.0, 15.0, 20.0, 20.0, 31.0, 32.9, 38.4]
-    },
-    'TP_16': {
-        'shape': [0.2289, 0.1356, 0.3717, 0.3717, 0.1052, 0.00000001, 0.0504, 0.0862, 0.1291],
-        'scale': [9.41, 16.51, 19.51, 19.51, 21.54, 20.0, 32.13, 30.95, 35.05]
-    },
-    'TP_17': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [8.0, 15.0, 15.0, 15.0, 25.0, 20.0, 41.5, 32.9, 38.4]
-    },
-    'TP_18': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [8.0, 15.0, 15.0, 15.0, 25.0, 20.0, 41.5, 32.9, 38.4]
-    },
-    'TP_19': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [8.0, 12.0, 20.0, 20.0, 20.0, 20.0, 38.0, 27.3, 29.0]
-    },
-    'TP_2': {
-        'shape': [0.3875, 0.4995, 0.5201, 0.5201, 0.1688, 0.2867, 0.2913, 0.3558, 0.2203],
-        'scale': [14.75, 30.78, 45.53, 45.53, 42.41, 31.22, 74.16, 60.45, 35.76]
-    },
-    'TP_20': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1134, 0.0, 0.0],
-        'scale': [15.0, 30.0, 37.0, 37.0, 35.0, 30.0, 30.80, 35.9, 43.4]
-    },
-    'TP_21': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [8.0, 12.0, 20.0, 20.0, 25.0, 20.0, 34.5, 27.8, 29.9]
-    },
-    'TP_22': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [12.0, 30.0, 40.0, 40.0, 35.0, 30.0, 62.5, 45.1, 29.4]
-    },
-    'TP_23': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [11.0, 25.0, 35.0, 35.0, 35.0, 30.0, 62.5, 45.1, 29.4]
-    },
-    'TP_24': {
-        'shape': [0.0966, 0.3169, 0.3456, 0.3456, 0.1437, 0.0966, 0.1533, 0.1192, 0.1919],
-        'scale': [8.46, 13.49, 24.38, 24.38, 24.75, 23.64, 40.18, 28.35, 30.52]
-    },
-    'TP_3': {
-        'shape': [0.0, 0.0, 0.1682, 0.1682, 0.0, 0.2027, 0.0, 0.0, 0.0],
-        'scale': [13.0, 35.0, 88.74, 88.74, 45.0, 36.74, 157.0, 88.0, 32.7]
-    },
-    'TP_4': {
-        'shape': [0.0, 0.0, 0.0104, 0.0104, 0.0, 0.0555, 0.0, 0.0, 0.0],
-        'scale': [20.0, 50.0, 90.66, 90.66, 45.0, 41.60, 132.5, 88.0, 32.7]
-    },
-    'TP_5': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [15.0, 35.0, 98.0, 98.0, 45.0, 30.0, 87.0, 70.5, 33.8]
-    },
-    'TP_6': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [18.0, 45.0, 100.0, 100.0, 45.0, 45.0, 73.0, 50.0, 33.6]
-    },
-    'TP_7': {
-        'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'scale': [12.0, 30.0, 47.0, 47.0, 35.0, 30.0, 76.5, 63.3, 44.7]
-    },
-    'TP_8': {
-        'shape': [0.2031, 0.2541, 0.3591, 0.3591, 0.00000001, 0.00000001, 0.00000001, 0.00000001, 0.00000001],
-        'scale': [15.01, 41.89, 64.78, 64.78, 45.0, 30.0, 90.5, 69.7, 33.4]
-    },
-    'TP_9': {
-        'shape': [0.1679, 0.1110, 0.0363, 0.0363, 0.1375, 0.0859, 0.00000001, 0.00000001, 0.00000001],
-        'scale': [12.49, 25.84, 26.32, 26.32, 29.72, 26.57, 38.0, 35.6, 42.9]
-    }
-}
+import pickle
 
 class DataGenerator:
-    def __init__(self, correlation_matrices, stats_by_type, num_of_blocks=50, size=1):
-        self.type_params = type_params  # 전역 변수 type_params를 직접 사용
-        self.correlation_matrices = correlation_matrices
-        self.stats_by_type = stats_by_type
+    def __init__(self, data_file=None, num_of_blocks=50, size=1, default_type_params=None):
+        self.data_file = data_file
         self.num_of_blocks = num_of_blocks
         self.size = size
+        self.type_params = self.initialize_type_params()
+        self.correlation_matrices = {}
+        self.type_counts = None
+        self.stats_by_type = None
+
+        # 데이터 초기화 (로드 또는 생성)
+        self.initialize_data()
+
+    def initialize_type_params(self):
+        return {
+            'TP_1': {
+                'shape': [0.1052, 0.2015, 0.0534, 0.0534, 0.3823, 0.1911, 0.4037, 0.2665, 0.0115],
+                'scale': [8.62, 17.30, 25.96, 25.96, 26.21, 22.89, 41.24, 44.31, 45.06]
+            },
+            'TP_10': {
+                'shape': [0.3009, 0.3808, 0.4490, 0.4490, 0.2812, 0.1816, 0.3431, 0.3737, 0.2464],
+                'scale': [12.26, 25.66, 37.27, 37.27, 34.42, 28.76, 52.56, 47.27, 37.03]
+            },
+            'TP_11': {
+                'shape': [0.2005, 0.3489, 0.3052, 0.3052, 0.3085, 0.2105, 0.2257, 0.3383, 0.1660],
+                'scale': [10.70, 21.91, 30.93, 30.93, 31.77, 26.38, 41.18, 39.72, 37.51]
+            },
+            'TP_12': {
+                'shape': [0.1289, 0.1738, 0.2958, 0.2958, 0.1231, 0.0617, 0.0942, 0.0048, 0.0071],
+                'scale': [17.26, 34.46, 54.12, 54.12, 38.70, 30.94, 74.07, 51.40, 34.70]
+            },
+            'TP_13': {
+                'shape': [0.0, 0.0, 0.1003, 0.1003, 0.0, 0.0, 0.0405, 0.0, 0.0],
+                'scale': [13.0, 25.0, 49.75, 49.75, 65.0, 30.0, 43.21, 33.7, 39.7]
+            },
+            'TP_14': {
+                'shape': [0.1551, 0.1582, 0.0325, 0.0325, 0.00000001, 0.0510, 0.00000001, 0.00000001, 0.00000001],
+                'scale': [12.85, 27.75, 47.10, 47.10, 45.0, 41.20, 41.5, 35.6, 42.9]
+            },
+            'TP_15': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [8.0, 15.0, 15.0, 15.0, 20.0, 20.0, 31.0, 32.9, 38.4]
+            },
+            'TP_16': {
+                'shape': [0.2289, 0.1356, 0.3717, 0.3717, 0.1052, 0.00000001, 0.0504, 0.0862, 0.1291],
+                'scale': [9.41, 16.51, 19.51, 19.51, 21.54, 20.0, 32.13, 30.95, 35.05]
+            },
+            'TP_17': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [8.0, 15.0, 15.0, 15.0, 25.0, 20.0, 41.5, 32.9, 38.4]
+            },
+            'TP_18': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [8.0, 15.0, 15.0, 15.0, 25.0, 20.0, 41.5, 32.9, 38.4]
+            },
+            'TP_19': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [8.0, 12.0, 20.0, 20.0, 20.0, 20.0, 38.0, 27.3, 29.0]
+            },
+            'TP_2': {
+                'shape': [0.3875, 0.4995, 0.5201, 0.5201, 0.1688, 0.2867, 0.2913, 0.3558, 0.2203],
+                'scale': [14.75, 30.78, 45.53, 45.53, 42.41, 31.22, 74.16, 60.45, 35.76]
+            },
+            'TP_20': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1134, 0.0, 0.0],
+                'scale': [15.0, 30.0, 37.0, 37.0, 35.0, 30.0, 30.80, 35.9, 43.4]
+            },
+            'TP_21': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [8.0, 12.0, 20.0, 20.0, 25.0, 20.0, 34.5, 27.8, 29.9]
+            },
+            'TP_22': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [12.0, 30.0, 40.0, 40.0, 35.0, 30.0, 62.5, 45.1, 29.4]
+            },
+            'TP_23': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [11.0, 25.0, 35.0, 35.0, 35.0, 30.0, 62.5, 45.1, 29.4]
+            },
+            'TP_24': {
+                'shape': [0.0966, 0.3169, 0.3456, 0.3456, 0.1437, 0.0966, 0.1533, 0.1192, 0.1919],
+                'scale': [8.46, 13.49, 24.38, 24.38, 24.75, 23.64, 40.18, 28.35, 30.52]
+            },
+            'TP_3': {
+                'shape': [0.0, 0.0, 0.1682, 0.1682, 0.0, 0.2027, 0.0, 0.0, 0.0],
+                'scale': [13.0, 35.0, 88.74, 88.74, 45.0, 36.74, 157.0, 88.0, 32.7]
+            },
+            'TP_4': {
+                'shape': [0.0, 0.0, 0.0104, 0.0104, 0.0, 0.0555, 0.0, 0.0, 0.0],
+                'scale': [20.0, 50.0, 90.66, 90.66, 45.0, 41.60, 132.5, 88.0, 32.7]
+            },
+            'TP_5': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [15.0, 35.0, 98.0, 98.0, 45.0, 30.0, 87.0, 70.5, 33.8]
+            },
+            'TP_6': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [18.0, 45.0, 100.0, 100.0, 45.0, 45.0, 73.0, 50.0, 33.6]
+            },
+            'TP_7': {
+                'shape': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'scale': [12.0, 30.0, 47.0, 47.0, 35.0, 30.0, 76.5, 63.3, 44.7]
+            },
+            'TP_8': {
+                'shape': [0.2031, 0.2541, 0.3591, 0.3591, 0.00000001, 0.00000001, 0.00000001, 0.00000001, 0.00000001],
+                'scale': [15.01, 41.89, 64.78, 64.78, 45.0, 30.0, 90.5, 69.7, 33.4]
+            },
+            'TP_9': {
+                'shape': [0.1679, 0.1110, 0.0363, 0.0363, 0.1375, 0.0859, 0.00000001, 0.00000001, 0.00000001],
+                'scale': [12.49, 25.84, 26.32, 26.32, 29.72, 26.57, 38.0, 35.6, 42.9]
+            }
+        }
+
+    def initialize_data(self):
+        # 파일 경로 설정
+        type_params_file = 'type_params.pkl'
+        correlation_matrices_file = 'correlation_matrices.pkl'
+        type_counts_file = 'type_counts.pkl'
+        stats_by_type_file = 'stats_by_type.pkl'
+
+        # pkl 파일 존재 여부 확인
+        if os.path.exists(type_params_file) and os.path.exists(correlation_matrices_file) and os.path.exists(type_counts_file) and os.path.exists(stats_by_type_file):
+            # 파일이 존재하는 경우, 로드
+            with open(type_params_file, 'rb') as f:
+                self.type_params = pickle.load(f)
+            with open(correlation_matrices_file, 'rb') as f:
+                self.correlation_matrices = pickle.load(f)
+            with open(type_counts_file, 'rb') as f:
+                self.type_counts = pickle.load(f)
+            with open(stats_by_type_file, 'rb') as f:
+                self.stats_by_type = pickle.load(f)
+        else:
+            # 필요한 파일이 없는 경우, 엑셀 파일을 읽어서 계산 후 저장
+            if self.data_file is not None:
+                self.calculate_and_store_data()
+            else:
+                raise FileNotFoundError("Required data files not found. Please ensure type_params.pkl, correlation_matrices.pkl, type_counts.pkl, and stats_by_type.pkl are available.")
+
+    def calculate_and_store_data(self):
+        # 엑셀 데이터 읽기
+        df = pd.read_excel(self.data_file)
+
+        # 타입별 데이터 개수 계산
+        self.type_counts = df['타입'].value_counts()
+
+        # 숫자형 데이터만 선택 (타입, 호선번호, 블록명 등 비숫자형 데이터 제외)
+        numeric_df = df.select_dtypes(include=[float, int])
+
+        # '타입'별 피처별 평균 및 표준편차 계산
+        self.stats_by_type = numeric_df.groupby(df['타입']).agg(['mean', 'std', 'count'])
+
+        # 상관계수 행렬이 필요한 타입만 필터링
+        df_filtered = df[df['타입'].isin(['TP_10', 'TP_2', 'TP_11', 'TP_8', 'TP_9', 'TP_14', 'TP_12', 'TP_16', 'TP_24'])]
+
+        # 필터링된 타입에 대해서만 상관계수 행렬을 계산하고 shape와 scale도 계산
+        self.correlation_matrices, calculated_type_params = self.calculate_and_store_correlations(df_filtered)
+
+        # 전역 type_params를 calculated_type_params로 업데이트
+        self.type_params.update(calculated_type_params)
+
+        # 계산된 데이터를 파일로 저장
+        with open('type_params.pkl', 'wb') as f:
+            pickle.dump(self.type_params, f)
+        with open('correlation_matrices.pkl', 'wb') as f:
+            pickle.dump(self.correlation_matrices, f)
+        with open('type_counts.pkl', 'wb') as f:
+            pickle.dump(self.type_counts, f)
+        with open('stats_by_type.pkl', 'wb') as f:
+            pickle.dump(self.stats_by_type, f)
+
+    def calculate_and_store_correlations(self, df, type_column='타입'):
+        correlation_matrices = {}
+        calculated_type_params = {}
+
+        for type_name, group in df.groupby(type_column):
+            numeric_data = group.select_dtypes(include=[float, int])
+            if numeric_data.shape[1] == 10:  # 10개의 피쳐가 모두 있는지 확인
+                if type_name in ['TP_10', 'TP_2', 'TP_11', 'TP_8', 'TP_9', 'TP_14', 'TP_12', 'TP_16', 'TP_24']:
+                    corr_matrix = numeric_data.corr()
+                    correlation_matrices[type_name] = corr_matrix
+                
+                shapes = []
+                scales = []
+                for col in numeric_data.columns:
+                    shape, loc, scale = stats.lognorm.fit(numeric_data[col], floc=0)
+                    shapes.append(shape)
+                    scales.append(scale)
+                
+                calculated_type_params[type_name] = {'shape': shapes, 'scale': scales}
+
+        return correlation_matrices, calculated_type_params
 
     def generate_data_for_type(self, type_name, type_counts):
         print(f"Generating data for type: {type_name}")
@@ -585,71 +671,31 @@ class DataGenerator:
         print("타입별 생성된 데이터 개수:")
         print(type_counts)
 
-def calculate_and_store_correlations(df, type_column='타입'):
-    correlation_matrices = {}
-    calculated_type_params = {}
 
-    for type_name, group in df.groupby(type_column):
-        numeric_data = group.select_dtypes(include=[float, int])
-        if numeric_data.shape[1] == 10:  # 10개의 피쳐가 모두 있는지 확인
-            if type_name in ['TP_10', 'TP_2', 'TP_11', 'TP_8', 'TP_9', 'TP_14', 'TP_12', 'TP_16', 'TP_24']:
-                corr_matrix = numeric_data.corr()
-                correlation_matrices[type_name] = corr_matrix
-            
-            shapes = []
-            scales = []
-            for col in numeric_data.columns:
-                shape, loc, scale = stats.lognorm.fit(numeric_data[col], floc=0)
-                shapes.append(shape)
-                scales.append(scale)
-            
-            calculated_type_params[type_name] = {'shape': shapes, 'scale': scales}
+# if __name__ == "__main__":
+#     # DataGenerator 인스턴스를 생성합니다.
+#     data_generator = DataGenerator(num_of_blocks=1060, size=1)
 
-    return correlation_matrices, calculated_type_params
+#     # 데이터를 생성합니다.
+#     all_data, selected_types = data_generator.generate_all_types(data_generator.type_counts)
 
+    # # 생성된 데이터 구조를 출력해봅니다.
+    # print("데이터 생성 결과를 확인합니다.")
+    
+    # # all_data의 구조 확인
+    # for type_name, blocks in all_data.items():
+    #     print(f"Type: {type_name}")
+    #     for block_index, block_data in blocks.items():
+    #         print(f"  Block index: {block_index}")
+    #         for process_index, process_time in enumerate(block_data):
+    #             print(f"    Process {process_index + 1}: {process_time}")
+    
+    # # selected_types의 구조 확인
+    # print("선택된 타입 확인:")
+    # print(selected_types)
 
-if __name__ == "__main__":
+    # # 데이터를 엑셀 파일로 저장합니다.
+    # output_directory = r'C:\Users\ohj\Desktop\PBS\environment'
+    # data_generator.save_all_data_to_excel(all_data, selected_types, output_directory, num_of_process=10)
 
-    # 엑셀 데이터 읽기
-    file_path = r'C:\Users\ohj\Desktop\PBS\environment\판넬_데이터.xlsx'
-    df = pd.read_excel(file_path)
-
-    # 타입별 데이터 개수 계산
-    type_counts = df['타입'].value_counts()
-
-    # 타입별 데이터 개수 출력
-    print(type_counts)
-
-    # 숫자형 데이터만 선택 (타입, 호선번호, 블록명 등 비숫자형 데이터 제외)
-    numeric_df = df.select_dtypes(include=[float, int])
-
-    # '타입'별 피처별 평균 및 표준편차 계산
-    stats_by_type = numeric_df.groupby(df['타입']).agg(['mean', 'std', 'count'])
-
-    # 컬럼 이름 확인
-    print(stats_by_type.columns)
-
-    # 상관계수 행렬이 필요한 타입만 필터링
-    df_filtered = df[df['타입'].isin(['TP_10', 'TP_2', 'TP_11', 'TP_8', 'TP_9', 'TP_14', 'TP_12', 'TP_16', 'TP_24'])]
-
-    # 필터링된 타입에 대해서만 상관계수 행렬을 계산하고 shape와 scale도 계산
-    correlation_matrices, calculated_type_params = calculate_and_store_correlations(df_filtered)
-
-
-    # correlation_matrices 딕셔너리에 저장된 결과를 확인
-    for type_name, corr_matrix in correlation_matrices.items():
-        print(f"Correlation matrix for {type_name}:")
-        print(corr_matrix)
-        print()
-
-    # 전역 type_params를 calculated_type_params로 업데이트
-    type_params.update(calculated_type_params)
-
-    # 데이터 생성
-    data_generator = DataGenerator(correlation_matrices=correlation_matrices, stats_by_type=stats_by_type, num_of_blocks=1060)
-
-    all_data, selected_types = data_generator.generate_all_types(type_counts=type_counts)
-
-    # 생성된 데이터를 엑셀 파일로 저장
-    output_filepath = r'C:\Users\ohj\Desktop\PBS\environment'
-    data_generator.save_all_data_to_excel(all_data, selected_types, output_filepath, num_of_process=10)
+    # print("데이터 생성 및 저장이 완료되었습니다.")
