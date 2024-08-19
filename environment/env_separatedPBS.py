@@ -6,7 +6,7 @@ import scipy.stats as stats
 
 
 class PanelBlockShop:
-    def __init__(self, num_process=6, num_p1=3, num_of_blocks=50, distribution="lognormal"):
+    def __init__(self, data_src, num_process=6, num_p1=3, num_of_blocks=50, distribution="lognormal"):
         self.num_p = num_process
         self.num_p_list = [num_p1, num_process - num_p1]
         self.num_of_blocks = num_of_blocks
