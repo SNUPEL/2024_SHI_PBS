@@ -1,4 +1,9 @@
+import sys
 import os
+
+# 현재 파일의 경로를 기준으로 environment 폴더의 경로를 추가 인식을 못해서
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'environment')))
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -6,9 +11,9 @@ import torch.optim as optim
 from time import time
 from datetime import datetime
 
-from agent.actor import PtrNet1
-from agent.critic import PtrNet2
-from environment.env import PanelBlockShop
+from actor import PtrNet1
+from critic import PtrNet2
+from env_separatedPBS import PanelBlockShop
 
 
 # torch.autograd.set_detect_anomaly(True)
@@ -59,19 +64,23 @@ def train_model(env, params, log_path=None):
                                                      gamma=params["lr_decay"])
 
     mse_loss = nn.MSELoss()
-
+    
+    # 해당 부분 수정
     t1 = time()
     for s in range(epoch + 1, params["step"]):
         inputs_temp = env.generate_data(params["batch_size"])
-        if env.distribution == "lognormal":
-            inputs = inputs_temp / inputs_temp.amax(dim=(1,2)).unsqueeze(-1).unsqueeze(-1)\
-                .expand(-1, inputs_temp.shape[1], inputs_temp.shape[2])
-        elif env.distribution == "uniform":
-            inputs = inputs_temp / 100
+        
+        # 데이터 정규화 수정
+        # Assuming inputs_temp is a PyTorch tensor
+        inputs_temp_tensor = torch.tensor(inputs_temp, dtype=torch.float32)
+
+        # Normalize the data using PyTorch operations
+        inputs = inputs_temp_tensor / inputs_temp_tensor.amax(dim=(1, 2), keepdim=True).expand(-1, inputs_temp_tensor.shape[1], inputs_temp_tensor.shape[2])
 
         pred_seq, ll_old, _ = act_model(inputs, device)
 
         for k in range(params["iteration"]):
+            # 해당 부분 수정
             real_makespan = env.stack_makespan(inputs_temp, pred_seq)
             pred_makespan = cri_model(inputs, device).unsqueeze(-1)
             adv = real_makespan.detach() - pred_makespan.detach()
@@ -103,6 +112,7 @@ def train_model(env, params, log_path=None):
 
         if s % params["log_step"] == 0:
             t2 = time()
+            print(f"Logging at step {s}...")  # 디버깅용 출력
             print('step:%d/%d, actic loss:%1.3f, crictic loss:%1.3f, L:%1.3f, %dmin%dsec' % (
                 s, params["step"], ave_act_loss / ((s + 1) * params["iteration"]), ave_cri_loss / ((s + 1) * params["iteration"]), ave_makespan / (s + 1), (t2 - t1) // 60, (t2 - t1) % 60))
             if log_path is None:
@@ -129,8 +139,11 @@ def train_model(env, params, log_path=None):
 
 
 if __name__ == '__main__':
+    num_of_process = 10  # 총 공정 수
+    num_p1 = 3  # 두 번째 갈래로 분기되는 공정 수
+    num_of_blocks = 50  # 각 배치의 블록 수
 
-    load_model = True
+    load_model = False # 현재 model이 없어서 False로 model이 있으면 True로 하면됨!
 
     log_dir = "./result/log"
     if not os.path.exists(log_dir + "/ppo"):
@@ -141,14 +154,14 @@ if __name__ == '__main__':
         os.makedirs(model_dir + "/ppo")
 
     params = {
-        "num_of_process": 6,
-        "num_of_blocks": 40,
+        "num_of_process": num_of_process,
+        "num_of_blocks": num_of_blocks,
         "step": 150001,
-        "log_step": 10,
+        "log_step": 1,
         "log_dir": log_dir,
         "save_step": 1000,
         "model_dir": model_dir,
-        "batch_size": 128,
+        "batch_size": 32, # 128에서 변경
         "n_embedding": 1024,
         "n_hidden": 512,
         "init_min": -0.08,
@@ -158,16 +171,17 @@ if __name__ == '__main__':
         "T": 1.0,
         "decode_type": "sampling",
         "iteration": 2,
-        "epsilon": 0.2,
+        "epsilon": 0.1, # 0.2에서 변경
         "optimizer": "Adam",
         "n_glimpse": 1,
         "n_process": 3,
-        "lr": 1e-4,
+        "lr": 1e-5, #1e-4 에서 변경
         "is_lr_decay": True,
         "lr_decay": 0.98,
         "lr_decay_step": 2000,
-        "load_model": load_model
+        "load_model": load_model,
+        "num_p1": num_p1
     }
 
-    env = PanelBlockShop(params["num_of_process"], params["num_of_blocks"], distribution="lognormal")
+    env = PanelBlockShop(num_process=num_of_process, num_p1=num_p1, num_of_blocks=num_of_blocks)
     train_model(env, params)

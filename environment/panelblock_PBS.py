@@ -120,11 +120,15 @@ class DataGenerator:
         }
 
     def initialize_data(self):
-        # 파일 경로 설정
-        type_params_file = 'type_params.pkl'
-        correlation_matrices_file = 'correlation_matrices.pkl'
-        type_counts_file = 'type_counts.pkl'
-        stats_by_type_file = 'stats_by_type.pkl'
+        # pkl의 위치를 제대로 못 읽어서 파일 경로 설정
+
+        # 현재 스크립트 경로를 기준으로 파일 경로 설정
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'environment'))
+
+        type_params_file = os.path.join(base_path, 'type_params.pkl')
+        correlation_matrices_file = os.path.join(base_path, 'correlation_matrices.pkl')
+        type_counts_file = os.path.join(base_path, 'type_counts.pkl')
+        stats_by_type_file = os.path.join(base_path, 'stats_by_type.pkl')
 
         # pkl 파일 존재 여부 확인
         if os.path.exists(type_params_file) and os.path.exists(correlation_matrices_file) and os.path.exists(type_counts_file) and os.path.exists(stats_by_type_file):
@@ -199,8 +203,8 @@ class DataGenerator:
         return correlation_matrices, calculated_type_params
 
     def generate_data_for_type(self, type_name, type_counts):
-        print(f"Generating data for type: {type_name}")
-        print(f"Available types: {list(self.type_params.keys())}")
+        # print(f"Generating data for type: {type_name}")
+        # print(f"Available types: {list(self.type_params.keys())}")
 
         params = self.type_params[type_name]
         shape = params['shape']
@@ -210,7 +214,7 @@ class DataGenerator:
         process_time_temp = np.zeros((self.size * self.num_of_blocks, 10))
 
         if type_name not in ['TP_10', 'TP_2', 'TP_11','TP_8', 'TP_9', 'TP_14', 'TP_12', 'TP_16', 'TP_24']:
-            print(f"타입 {type_name}은 상관관계 매트릭스가 없습니다. 평균 기반으로 가우시안 노이즈를 이용해 데이터를 생성합니다.")
+            # print(f"타입 {type_name}은 상관관계 매트릭스가 없습니다. 평균 기반으로 가우시안 노이즈를 이용해 데이터를 생성합니다.")
             
             # 해당 타입의 평균 데이터 가져오기
             type_stats = self.stats_by_type.loc[type_name]
@@ -223,7 +227,7 @@ class DataGenerator:
                 
                 # NaN 체크 및 처리
                 if np.isnan(feature_std):
-                    print(f"Warning: NaN detected for type {type_name}, feature {i}. Using default values.")
+                    # print(f"Warning: NaN detected for type {type_name}, feature {i}. Using default values.")
                     feature_std = 10
                 
                 if i in [0, 1, 2]:  # 크레인배재, 주판판계, 전면SAW
@@ -245,7 +249,7 @@ class DataGenerator:
             process_time_temp = process_time_temp[:, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
 
         if type_name in ['TP_8', 'TP_9', 'TP_14', 'TP_12', 'TP_16', 'TP_24']:
-            print(f"타입 {type_name}에 대해 가능한 상관관계를 고려하여 데이터를 생성합니다.")
+            # print(f"타입 {type_name}에 대해 가능한 상관관계를 고려하여 데이터를 생성합니다.")
             
             type_stats = self.stats_by_type.loc[type_name]
             type_mean = type_stats[type_stats.index.get_level_values(1) == 'mean']
@@ -664,12 +668,12 @@ class DataGenerator:
         
         writer.close()
 
-        print(f"파일이 저장되었습니다: {filename}")
+        # print(f"파일이 저장되었습니다: {filename}")
 
         # 타입별 개수 확인
         type_counts = final_df_reordered['타입'].value_counts()
-        print("타입별 생성된 데이터 개수:")
-        print(type_counts)
+        # print("타입별 생성된 데이터 개수:")
+        # print(type_counts)
 
 
 # if __name__ == "__main__":

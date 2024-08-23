@@ -5,6 +5,7 @@ from panelblock_PBS import DataGenerator
 
 # from benchmark.heuristics import *
 
+# print 구문 주석처리
 
 class PanelBlockShop:
     def __init__(self, num_process=10, num_p1=3, num_of_blocks=50):
@@ -18,7 +19,7 @@ class PanelBlockShop:
     def generate_data(self, batch_size=32):
         total_blocks = batch_size * self.num_of_blocks
         
-        print(f"Generating {total_blocks} samples...")
+        # print(f"Generating {total_blocks} samples...")
         self.data_generator.num_of_blocks = total_blocks  # DataGenerator의 num_of_blocks를 업데이트
         self.all_data, self.selected_types = self.data_generator.generate_all_types(self.data_generator.type_counts)
 
@@ -28,7 +29,7 @@ class PanelBlockShop:
             type_name = self.selected_types[j]
             
             if type_name not in self.all_data or '0' not in self.all_data[type_name]:
-                print(f"Warning: Data not found for type {type_name}.")
+                # print(f"Warning: Data not found for type {type_name}.")
                 continue
             
             data_for_block = self.all_data[type_name]['0'][j]
@@ -37,8 +38,8 @@ class PanelBlockShop:
                 if i < len(data_for_block):
                     value = data_for_block[i].item() if isinstance(data_for_block[i], torch.Tensor) else data_for_block[i]
                     process_time[j, i] = value
-                else:
-                    print(f"Warning: Process index {i} out of range for block {j} of type {type_name}.")
+                # else:
+                #     print(f"Warning: Process index {i} out of range for block {j} of type {type_name}.")
         
         return process_time.reshape(batch_size, self.num_of_blocks, self.num_p)
 
@@ -97,17 +98,17 @@ class PanelBlockShop:
                     if esd_A > esd_B:
                         line = '2B'
                         unused = '2A'
-                        print('Block {0} goes to line B.'.format(i))
+                        # print('Block {0} goes to line B.'.format(i))
                         esd_2 = esd_B
                     elif esd_A == esd_B:
                         line = '2A'
                         unused = '2B'
-                        print('Block {0} goes to line A.'.format(i))
+                        # print('Block {0} goes to line A.'.format(i))
                         esd_2 = esd_A
                     else:
                         line = '2A'
                         unused = '2B'
-                        print('Block {0} goes to line A.'.format(i))
+                        # print('Block {0} goes to line A.'.format(i))
                         esd_2 = esd_A
 
                     ESD = max(esd_1, esd_2)
