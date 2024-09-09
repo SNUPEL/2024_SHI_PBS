@@ -141,7 +141,7 @@ def train_model(env, params, log_path=None):
 if __name__ == '__main__':
     num_of_process = 10  # 총 공정 수
     num_p1 = 3  # 두 번째 갈래로 분기되는 공정 수
-    num_of_blocks = 50  # 각 배치의 블록 수
+    num_of_blocks = 100  # 각 배치의 블록 수
 
     load_model = False # 현재 model이 없어서 False로 model이 있으면 True로 하면됨!
 
@@ -161,7 +161,7 @@ if __name__ == '__main__':
         "log_dir": log_dir,
         "save_step": 1000,
         "model_dir": model_dir,
-        "batch_size": 32, # 128에서 변경
+        "batch_size": 64, # 128에서 변경
         "n_embedding": 1024,
         "n_hidden": 512,
         "init_min": -0.08,
@@ -171,7 +171,7 @@ if __name__ == '__main__':
         "T": 1.0,
         "decode_type": "sampling",
         "iteration": 2,
-        "epsilon": 0.1, # 0.2에서 변경
+        "epsilon": 0.2, # 0.2에서 변경
         "optimizer": "Adam",
         "n_glimpse": 1,
         "n_process": 3,

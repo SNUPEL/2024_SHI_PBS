@@ -223,7 +223,7 @@ class DataGenerator:
             
             for i, (mean, std) in enumerate(zip(type_mean, type_std)):
                 feature_mean = max(mean, 0.1)  # 최소값 0.1 설정
-                feature_std = max(std, 0.01)  # 최소 표준편차 0.01 설정
+                feature_std = max(std, 1)  # 최소 표준편차 0.01 설정
                 
                 # NaN 체크 및 처리
                 if np.isnan(feature_std):
@@ -342,7 +342,7 @@ class DataGenerator:
                 elif i == 1:  # 론지용접
                     process_time_temp[:, 8] = np.clip(np.round(data, 1), 16.7, 126)
                 else:  # 론지수정
-                    process_time_temp[:, 9] = np.clip(np.round(data, 1), 11.3, 54.9)
+                    process_time_temp[:, 9] = np.clip(np.round(data, 1), 11.3, 48)
 
             # Independent features: NC마킹, 절단
             for i in [5, 6]:
@@ -359,24 +359,24 @@ class DataGenerator:
                     min_val, max_val = np.min(data), np.max(data)
                     
                     # 극단값 비율 설정 (샘플 크기에 따라 조정)
-                    extreme_ratio = min(0.05, 5 / base_size)
+                    extreme_ratio = min(0.05, 5 / base_size) # 0.02로해도됨 2%
                     extreme_count = max(1, int(base_size * extreme_ratio))
                     
                     # 극단값 생성 및 추가 (상한값을 초과하지 않도록 주의)
                     if i == 0:  # 크레인배재
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 35), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 35), size=extreme_count)
                     elif i == 1:  # 주판판계
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 105), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 105), size=extreme_count)
                     elif i in [2, 4]:  # 전면SAW, 후면SAW
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 125), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 125), size=extreme_count)
                     elif i == 5:  # NC마킹
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 65), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 65), size=extreme_count)
                     elif i == 6:  # 절단
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 45), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 45), size=extreme_count)
                     elif i == 7:  # 론지배재
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 129), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 129), size=extreme_count)
                     elif i == 8:  # 론지용접
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 126), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 126), size=extreme_count)
                     elif i == 9:  # 론지수정
                         extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 54.9), size=extreme_count)
                     
@@ -447,24 +447,24 @@ class DataGenerator:
                     min_val, max_val = np.min(data), np.max(data)
                     
                     # 극단값 비율 설정 (샘플 크기에 따라 조정)
-                    extreme_ratio = min(0.05, 5 / base_size)
+                    extreme_ratio = min(0.05, 5 / base_size) # # 0.02로해도됨 2% 0.05
                     extreme_count = max(1, int(base_size * extreme_ratio))
                     
                     # 극단값 생성 및 추가 (상한값을 초과하지 않도록 주의)
                     if i == 0:  # 크레인배재
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 35), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 35), size=extreme_count)
                     elif i == 1:  # 주판판계
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 105), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 105), size=extreme_count)
                     elif i in [2, 4]:  # 전면SAW, 후면SAW
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 107), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 107), size=extreme_count)
                     elif i == 5:  # NC마킹
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 45), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 45), size=extreme_count)
                     elif i == 7:  # 론지배재
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 101), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 101), size=extreme_count)
                     elif i == 8:  # 론지용접
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 95.4), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 95.4), size=extreme_count)
                     elif i == 9:  # 론지수정
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 50.4), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 50.4), size=extreme_count)
                     else:  # 절단 (상한 없음)
                         extreme_values = np.random.uniform(max_val, max_val * 1.1, size=extreme_count)
                     
@@ -535,26 +535,26 @@ class DataGenerator:
                     min_val, max_val = np.min(data), np.max(data)
                     
                     # 극단값 비율 설정 (샘플 크기에 따라 조정)
-                    extreme_ratio = min(0.05, 5 / base_size)
+                    extreme_ratio = min(0.05, 5 / base_size) # # 0.02로해도됨 2%
                     extreme_count = max(1, int(base_size * extreme_ratio))
                     
                     # 극단값 생성 및 추가 (상한값을 초과하지 않도록 주의)
                     if i == 0:  # 크레인배재
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 15), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 15), size=extreme_count)
                     elif i == 1:  # 주판판계
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 40), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 40), size=extreme_count)
                     elif i in [2, 4]:  # 전면SAW, 후면SAW
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 65), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 65), size=extreme_count)
                     elif i == 5:  # NC마킹
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 65), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 65), size=extreme_count)
                     elif i == 6:  # 절단
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 45), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 45), size=extreme_count)
                     elif i == 7:  # 론지배재
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 59), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 59), size=extreme_count)
                     elif i == 8:  # 론지용접
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 75.5), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 75.5), size=extreme_count)
                     elif i == 9:  # 론지수정
-                        extreme_values = np.random.uniform(max_val, min(max_val * 1.1, 54.9), size=extreme_count)
+                        extreme_values = np.random.uniform(max_val, max(max_val * 1.1, 54.9), size=extreme_count)
                     
                     random_indices = np.random.choice(base_size, extreme_count, replace=False)
                     data[random_indices] = extreme_values
@@ -668,7 +668,7 @@ class DataGenerator:
         
         writer.close()
 
-        # print(f"파일이 저장되었습니다: {filename}")
+        print(f"파일이 저장되었습니다: {filename}")
 
         # 타입별 개수 확인
         type_counts = final_df_reordered['타입'].value_counts()
@@ -676,15 +676,15 @@ class DataGenerator:
         # print(type_counts)
 
 
-# if __name__ == "__main__":
-#     # DataGenerator 인스턴스를 생성합니다.
-#     data_generator = DataGenerator(num_of_blocks=1060, size=1)
+if __name__ == "__main__":
+    # DataGenerator 인스턴스를 생성합니다.
+    data_generator = DataGenerator(num_of_blocks=1060, size=1)
 
-#     # 데이터를 생성합니다.
-#     all_data, selected_types = data_generator.generate_all_types(data_generator.type_counts)
+    # 데이터를 생성합니다.
+    all_data, selected_types = data_generator.generate_all_types(data_generator.type_counts)
 
-    # # 생성된 데이터 구조를 출력해봅니다.
-    # print("데이터 생성 결과를 확인합니다.")
+    # 생성된 데이터 구조를 출력해봅니다.
+    print("데이터 생성 결과를 확인합니다.")
     
     # # all_data의 구조 확인
     # for type_name, blocks in all_data.items():
@@ -694,12 +694,12 @@ class DataGenerator:
     #         for process_index, process_time in enumerate(block_data):
     #             print(f"    Process {process_index + 1}: {process_time}")
     
-    # # selected_types의 구조 확인
-    # print("선택된 타입 확인:")
-    # print(selected_types)
+    # selected_types의 구조 확인
+    print("선택된 타입 확인:")
+    print(selected_types)
 
-    # # 데이터를 엑셀 파일로 저장합니다.
-    # output_directory = r'C:\Users\ohj\Desktop\PBS\environment'
-    # data_generator.save_all_data_to_excel(all_data, selected_types, output_directory, num_of_process=10)
+    # 데이터를 엑셀 파일로 저장합니다.
+    output_directory = r'C:\Users\User\Desktop\PBSgit\environment'
+    data_generator.save_all_data_to_excel(all_data, selected_types, output_directory, num_of_process=10)
 
-    # print("데이터 생성 및 저장이 완료되었습니다.")
+    print("데이터 생성 및 저장이 완료되었습니다.")
